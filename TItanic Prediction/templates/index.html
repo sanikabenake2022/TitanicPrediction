@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titanic Survival Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="main-header">
+                <h1>Titanic Survival Prediction</h1>
+                <p>Enter passenger details to predict survival probability using Machine Learning</p>
+            </header>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="single">Single Prediction</button>
+                <button class="tab-btn" data-tab="csv">CSV Upload</button>
+            </div>
+
+            <div class="content-wrapper" id="singleTab">
+                <!-- Prediction Form -->
+                <div class="form-section">
+                    <div class="card">
+                        <h2>Passenger Details</h2>
+                        <form id="predictionForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="pclass">Passenger Class</label>
+                                    <select id="pclass" name="pclass" required>
+                                        <option value="1">1st Class</option>
+                                        <option value="2">2nd Class</option>
+                                        <option value="3" selected>3rd Class</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sex">Gender</label>
+                                    <select id="sex" name="sex" required>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="age">Age</label>
+                                    <input type="number" id="age" name="age" min="0" max="100" value="30" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="fare">Fare Paid ($)</label>
+                                    <input type="number" id="fare" name="fare" min="0" max="500" value="32" step="0.01" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="sibsp">Siblings/Spouses Aboard</label>
+                                    <input type="number" id="sibsp" name="sibsp" min="0" max="8" value="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="parch">Parents/Children Aboard</label>
+                                    <input type="number" id="parch" name="parch" min="0" max="6" value="0" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="embarked">Port of Embarkation</label>
+                                    <select id="embarked" name="embarked" required>
+                                        <option value="S">Southampton (S)</option>
+                                        <option value="C">Cherbourg (C)</option>
+                                        <option value="Q">Queenstown (Q)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="predict-btn">
+                                Predict Survival
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div class="result-section">
+                    <div class="card result-card" id="resultCard" style="display: none;">
+                        <h2>Prediction Result</h2>
+                        <div class="result-content">
+                            <div class="probability-circle">
+                                <svg viewBox="0 0 36 36" class="circular-chart">
+                                    <path class="circle-bg"
+                                        d="M18 2.0845
+                                            a 15.9155 15.9155 0 0 1 0 31.831
+                                            a 15.9155 15.9155 0 0 1 0 -31.831"
+                                    />
+                                    <path class="circle" id="circleProgress"
+                                        stroke-dasharray="0, 100"
+                                        d="M18 2.0845
+                                            a 15.9155 15.9155 0 0 1 0 31.831
+                                            a 15.9155 15.9155 0 0 1 0 -31.831"
+                                    />
+                                    <text x="18" y="20.35" class="percentage" id="percentageText">0%</text>
+                                </svg>
+                            </div>
+                            <div class="result-details">
+                                <div class="result-item">
+                                    <span class="label">Prediction:</span>
+                                    <span class="value" id="predictionText">-</span>
+                                </div>
+                                <div class="result-item">
+                                    <span class="label">Risk Level:</span>
+                                    <span class="value" id="riskLevel">-</span>
+                                </div>
+                                <div class="result-item">
+                                    <span class="label">Survival Probability:</span>
+                                    <span class="value" id="survivalProb">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Card -->
+                    <div class="card info-card">
+                        <h3>About the Model</h3>
+                        <p>This prediction uses a Random Forest classifier trained on Titanic passenger data.</p>
+                        <ul>
+                            <li><strong>Class:</strong> Higher classes had better survival rates</li>
+                            <li><strong>Gender:</strong> Women and children were prioritized</li>
+                            <li><strong>Age:</strong> Children under 16 had higher survival</li>
+                            <li><strong>Fare:</strong> Higher fares correlated with better outcomes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CSV Upload Tab -->
+            <div class="content-wrapper csv-tab" id="csvTab" style="display: none;">
+                <div class="form-section full-width">
+                    <div class="card">
+                        <h2>Upload CSV File</h2>
+                        <p class="upload-hint">Upload a CSV file with columns: Pclass, Sex, Age, SibSp, Parch, Fare, Embarked</p>
+                        
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-icon">📁</div>
+                            <p>Drag & drop your CSV file here</p>
+                            <p class="upload-or">or</p>
+                            <input type="file" id="csvFileInput" accept=".csv" hidden>
+                            <button type="button" class="upload-btn" onclick="document.getElementById('csvFileInput').click()">Browse Files</button>
+                            <p class="file-name" id="fileName"></p>
+                        </div>
+                        
+                        <button type="button" class="predict-btn" id="uploadPredictBtn" disabled>Predict from CSV</button>
+                    </div>
+                </div>
+
+                <!-- CSV Results Table -->
+                <div class="result-section full-width" id="csvResultsSection" style="display: none;">
+                    <div class="card">
+                        <h2>Batch Prediction Results</h2>
+                        <div class="table-container">
+                            <table id="csvResultsTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Pclass</th>
+                                        <th>Sex</th>
+                                        <th>Age</th>
+                                        <th>Fare</th>
+                                        <th>Survival Probability</th>
+                                        <th>Prediction</th>
+                                        <th>Risk</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        <div class="csv-summary" id="csvSummary"></div>
+                        <button type="button" class="predict-btn secondary" id="downloadResultsBtn">Download Results CSV</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
